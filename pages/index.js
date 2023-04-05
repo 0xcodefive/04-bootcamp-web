@@ -1,31 +1,43 @@
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import Main from "./main";
-import { bscTestnet } from "@wagmi/chains";
-import { Web3Modal } from "@web3modal/react";
-import { WALLET_CONNECT_ID } from "../constants";
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from "@web3modal/ethereum";
+import Head from "next/head";
+import Image from "next/image";
+import styles from "@/styles/Home.module.css";
+import {Web3Button} from "@web3modal/react";
+import NftViewer from "./nftViewer";
 
-const projectId = WALLET_CONNECT_ID;
-let chains = [bscTestnet];
-const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: w3mConnectors({ projectId, version: 1, chains }),
-  provider,
-});
-const ethereumClient = new EthereumClient(wagmiClient, chains);
+export default function Main() {
+    return (
+        <>
+            <Head>
+                <title>NFT Students of 0xc0de</title>
+                <meta name="description" content="Students of 0xc0de"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <link rel="icon" href="/favicon.ico"/>
+            </Head>
+            <main className={styles.main}>
+                <div className={styles.description}>
+                    <p>
+                        <Web3Button icon="show" label="Connect Wallet" balance="show"/>
+                    </p>
+                    <div>
+                        <a
+                            href="https://github.com/0xcodefive/04-bootcamp-web"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            By{" "}
+                            <Image
+                                src="/0xc0de-fon.png"
+                                alt="0xc0de Logo"
+                                width={70}
+                                height={70}
+                                priority
+                            />
+                        </a>
+                    </div>
+                </div>
 
-export default function Home() {
-  return (
-    <>
-      <WagmiConfig client={wagmiClient}>
-        <Main />
-      </WagmiConfig>
-      <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
-    </>
-  );
+                <NftViewer/>
+            </main>
+        </>
+    );
 }
