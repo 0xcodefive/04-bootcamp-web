@@ -165,6 +165,13 @@
     width: 80%;
 }
 
+.center_block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
 .row2 {
     display: flex;
     flex-wrap: wrap;
