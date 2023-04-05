@@ -122,7 +122,7 @@ const NftViewer = () => {
         return async () => {
             try {
                 setIsButtonLoading(true);
-                const WAIT_BLOCK_CONFIRMATIONS = 2;
+                const WAIT_BLOCK_CONFIRMATIONS = 1;
                 if (
                     (await nftContract.getApproved(index)).toLowerCase() !==
                     TOKEN_CONTRACT_ADDRESS.toLowerCase()
@@ -155,7 +155,7 @@ const NftViewer = () => {
             try {
                 setIsButtonLoading(true);
 
-                const WAIT_BLOCK_CONFIRMATIONS = 3;
+                const WAIT_BLOCK_CONFIRMATIONS = 1;
                 const tx = await tokenContract.unstake(index);
                 console.log(`unstake: ${tx.hash}`);
                 await signer.provider.waitForTransaction(
