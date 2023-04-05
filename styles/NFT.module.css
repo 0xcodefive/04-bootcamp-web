@@ -1,201 +1,219 @@
 .h1 {
-  padding: 24px;
-  margin: 24px;
-  width: 100%;
+    padding: 24px;
+    margin: 24px;
+    width: 100%;
 }
 
 .return {
-  font-family: var(--font-mono);
+    font-family: var(--font-mono);
 }
 
 .container {
-  display: flex;
-  flex-wrap: wrap;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
 }
 
 .row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
 }
 
 .col {
-  width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
-  margin-top: 30px;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
 }
 
 .card {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  overflow: hidden;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .image {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 0.5rem;
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+}
+
+.client_image {
+    border: #8178ff;
 }
 
 .side_left {
-  flex: 1 1 40%;
-  padding: 1rem;
-  margin: 1rem;
+    flex: 1 1 40%;
+    padding: 1rem;
+    margin: 1rem;
 }
 
 .side_right {
-  flex: 1 1 40%;
-  padding: 1rem;
-  margin: 1rem;
-  background-color: #f6f6f6;
-  border-radius: 0 10px 10px 0;
+    flex: 1 1 40%;
+    padding: 1rem;
+    margin: 1rem;
+    background-color: #f6f6f6;
+    border-radius: 0 10px 10px 0;
 }
 
 .card_title {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 24px;
-  font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .card_text {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 16px;
-  line-height: 1.5;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 .attribute {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .attribute_label {
-  margin-right: 10px;
-  font-weight: 700;
+    margin-right: 10px;
+    font-weight: 700;
 }
 
 @media (min-width: 768px) {
-  .card {
-    flex-wrap: nowrap;
-  }
+    .card {
+        flex-wrap: nowrap;
+    }
 
-  .side_left {
-    flex: 1 1 auto;
-  }
+    .side_left {
+        flex: 1 1 auto;
+    }
 
-  .side_right {
-    flex: 1 1 auto;
-    border-radius: 10px;
-    margin-left: 20px;
-  }
+    .side_right {
+        flex: 1 1 auto;
+        border-radius: 10px;
+        margin-left: 20px;
+    }
 }
 
 .mint_button {
-  background: linear-gradient(to right, #8178ff, #ff00d9);
-  border-radius: 30px;
-  border-width: 0px;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-  color: #fff;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  padding: 15px 30px;
-  text-transform: uppercase;
-  transition: all 0.3s ease-in-out;
+    background: linear-gradient(to right, #8178ff, #ff00d9);
+    border-radius: 30px;
+    border-width: 0px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    color: #fff;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px 30px;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
 }
 
 .mint_button:hover {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 .mint_button:active {
-  transform: translateY(0);
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    transform: translateY(0);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .stamped_image {
-  position: relative;
+    position: relative;
 }
 
 .stamp {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #ffd700;
-  color: black;
-  font-weight: bold;
-  padding: 0.2rem 0.5rem;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #ffd700;
+    color: black;
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.stamp_right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #ffd700;
+    color: black;
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
 .black_and_white {
-  filter: grayscale(100%);
+    filter: grayscale(100%);
 }
 
 .container2 {
-  margin: 0 auto;
-  width: 80%;
+    margin: 0 auto;
+    width: 80%;
 }
 
 .row2 {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
 }
 
 .col2 {
-  width: calc(33.33% - 20px);
-  margin-bottom: 40px;
-  min-width: 200px;
+    width: calc(33.33% - 20px);
+    margin-bottom: 40px;
+    min-width: 200px;
 }
 
 .card2 {
-  position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 100%;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease-in-out;
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
 }
 
 .card2:hover {
-  transform: translateY(-4px);
-  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 .image_container2 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .image2 {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .owner2 {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.7);
-  text-align: center;
-  font-size: 12px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    font-size: 12px;
 }
