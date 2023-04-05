@@ -13,7 +13,7 @@ const projectId = WALLET_CONNECT_ID;
 let chains = [bscTestnet];
 const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
 const wagmiClient = createClient({
-  autoConnect: false,
+  autoConnect: true,
   connectors: w3mConnectors({ projectId, version: 1, chains }),
   provider,
 });
