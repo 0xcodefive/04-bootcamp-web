@@ -182,7 +182,7 @@ const NftViewer = () => {
     return (
         <div className={styles.return}>
             {showMintBtn ? (
-                <div>
+                <div className={styles.center_block}>
                     <button className={styles.mint_button} onClick={mintNFT}>
                         {isButtonLoading ? <Spinner width={"20px"} height={"20px"}/> :
                             <p>Mint your first NFT by 0.001 BNB</p>
