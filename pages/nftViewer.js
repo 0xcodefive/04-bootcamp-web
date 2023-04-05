@@ -12,22 +12,30 @@ const NftViewer = () => {
     const [nftMetadatas, setNFTMetadatas] = useState([]);
     const [nftImages, setNFTImages] = useState([]);
     const {data: signer, isError} = useSigner();
+    const [nftContract, setNftContract] = useState(undefined)
+    const [tokenContract, setTokenContract] = useState(undefined)
 
     const account = useAccount();
-    let nftContract, tokenContract;
 
     useEffect(() => {
-        if (signer && account && !isLoading && nftImages.length === 0) {
-            nftContract = new ethers.Contract(NFT_CONTRACT_ADDRESS, NFT_ABI, signer);
-            tokenContract = new ethers.Contract(
+        if (signer && account && (!tokenContract || !tokenContract)) {
+            const nftContract = new ethers.Contract(NFT_CONTRACT_ADDRESS, NFT_ABI, signer);
+            const tokenContract = new ethers.Contract(
                 TOKEN_CONTRACT_ADDRESS,
                 TOKEN_ABI,
                 signer
             );
+            setNftContract(nftContract);
+            setTokenContract(tokenContract);
+        }
+    }, [account])
+
+    useEffect(() => {
+        if (nftContract && tokenContract && !isLoading && nftImages.length === 0) {
             setIsLoading(true);
             getNFT().finally(() => setIsLoading(false));
         }
-    }, [account]);
+    }, [nftContract, tokenContract]);
 
     const getNFT = async () => {
         const addressSigner = await signer.getAddress();
@@ -155,8 +163,6 @@ const NftViewer = () => {
         );
     }
 
-    // console.log(nftImages)
-    console.log(isLoading)
     return (
         <div className={styles.return}>
             {showMintBtn ? (
