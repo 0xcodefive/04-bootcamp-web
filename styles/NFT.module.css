@@ -156,6 +156,7 @@
 .col2 {
   width: calc(33.33% - 20px);
   margin-bottom: 40px;
+  min-width: 200px;
 }
 
 .card2 {

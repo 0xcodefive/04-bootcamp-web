@@ -13,6 +13,7 @@ import styles from "@/styles/NFT.module.css";
 
 const NftViewer = () => {
   const [showMintBtn, setShowMintBtn] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState(false);
   const [nftMetadatas, setNFTMetadatas] = useState([]);
   const [nftImages, setNFTImages] = useState([]);
   const { data: signer, isError } = useSigner();
@@ -42,47 +43,55 @@ const NftViewer = () => {
     const dontShowMintBtn = await nftContract.addressMinted(addressSigner);
     setShowMintBtn(!dontShowMintBtn);
 
+    const _balance = ethers.utils.formatEther(
+      await tokenContract.balanceOf(addressSigner)
+    );
+    const _balanceToStr = parseFloat(_balance).toFixed(1);
+    setTokenBalance(_balanceToStr);
+
     for (var i = 0; i < totalSupply; i++) {
-      try {
-        // Получение метаданных NFT контракта
-        const tokenURI = (await nftContract.tokenURI(i)).replace(
-          "ipfs://",
-          "https://ipfs.io/ipfs/"
-        );
-        const response = await fetch(tokenURI);
-        const metadata = await response.json();
-        metadata.token_id = i;
-        let ownerOf = await nftContract.ownerOf(i);
+      // Получение метаданных NFT контракта
+      const tokenURI = (await nftContract.tokenURI(i)).replace(
+        "ipfs://",
+        "https://ipfs.io/ipfs/"
+      );
+      const response = await fetch(tokenURI);
+      const metadata = await response.json();
+      metadata.token_id = i;
+      let ownerOf = await nftContract.ownerOf(i);
 
-        if (ownerOf.toLowerCase() === TOKEN_CONTRACT_ADDRESS.toLowerCase()) {
-          let minter = await tokenContract._owners(i);
-          metadata.isStaked = true;
-          ownerOf = minter;
-          const lastStakeTime = await tokenContract._lastStakeTime(i);
-          metadata.lastStakeTime = lastStakeTime;
-          const STAKING_REWARD = await tokenContract.STAKING_REWARD();
-          const ACCRUAL_PERIOD = await tokenContract.ACCRUAL_PERIOD();
-          const _reward = lastStakeTime.mul(STAKING_REWARD).div(ACCRUAL_PERIOD);
-          metadata.reward = ethers.utils.formatEther(_reward);
-        }
-
-        metadata.isOwned =
-          ownerOf.toLowerCase() === addressSigner.toLowerCase();
-        metadata.owner = ownerOf;
-        metadatas.push(metadata);
-
-        // Получение изображения NFT
-        const imageURI = metadata.image.replace(
-          "ipfs://",
-          "https://ipfs.io/ipfs/"
-        );
-        const imageData = await fetch(imageURI);
-        const blob = await imageData.blob();
-        const imageURL = URL.createObjectURL(blob);
-        images.push(imageURL);
-      } catch (error) {
-        console.error(error);
+      if (ownerOf.toLowerCase() === TOKEN_CONTRACT_ADDRESS.toLowerCase()) {
+        ownerOf = await tokenContract._owners(i);
+        metadata.isStaked = true;
+        const lastStakeTime = await tokenContract._lastStakeTime(i);
+        metadata.lastStakeTime = lastStakeTime;
+        const block = await signer.provider.getBlock("latest");
+        const STAKING_REWARD = await tokenContract.STAKING_REWARD();
+        const ACCRUAL_PERIOD = await tokenContract.ACCRUAL_PERIOD();
+        const _reward = ethers.utils
+          .formatEther(
+            ethers.BigNumber.from(block.timestamp)
+              .sub(lastStakeTime)
+              .mul(STAKING_REWARD)
+              .div(ACCRUAL_PERIOD)
+          )
+          .toString();
+        metadata.reward = parseFloat(_reward).toFixed(1);
       }
+
+      metadata.isOwned = ownerOf.toLowerCase() === addressSigner.toLowerCase();
+      metadata.owner = ownerOf;
+      metadatas.push(metadata);
+
+      // Получение изображения NFT
+      const imageURI = metadata.image.replace(
+        "ipfs://",
+        "https://ipfs.io/ipfs/"
+      );
+      const imageData = await fetch(imageURI);
+      const blob = await imageData.blob();
+      const imageURL = URL.createObjectURL(blob);
+      images.push(imageURL);
     }
     setNFTMetadatas(metadatas);
     setNFTImages(images);
@@ -145,7 +154,9 @@ const NftViewer = () => {
 
   if (!signer || !account) {
     return (
-      <div className={styles.container}>Connect your wallet to look NFT</div>
+      <div className={styles.return}>
+        <h1 className={styles.h1}>Connect your wallet to look NFT</h1>
+      </div>
     );
   }
 
@@ -161,12 +172,13 @@ const NftViewer = () => {
         <></>
       )}
 
+      <h1 className={styles.h1}>Your balance {tokenBalance} T0xC</h1>
+
       <h1 className={styles.h1}>Your collection</h1>
       <div className={styles.container}>
         <div className={styles.row}>
-          {nftImages
-            .filter((nftImage, i) => nftMetadatas[i].isOwned)
-            .map((nftImage, i) => (
+          {nftImages.map((nftImage, i) =>
+            nftMetadatas[i].isOwned ? (
               <div key={i} className={styles.col}>
                 <div className={styles.card} key={i}>
                   <div className={styles.side_left}>
@@ -237,7 +249,10 @@ const NftViewer = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            ) : (
+              ""
+            )
+          )}
         </div>
       </div>
 
@@ -273,6 +288,9 @@ const NftViewer = () => {
           ))}
         </div>
       </div>
+
+      <p>NFT contract address: {NFT_CONTRACT_ADDRESS}</p>
+      <p>T0xC contract address: {TOKEN_CONTRACT_ADDRESS}</p>
     </div>
   );
 };

@@ -44,8 +44,8 @@ export default function Main() {
               <Image
                 src="/0xc0de-fon.png"
                 alt="0xc0de Logo"
-                width={80}
-                height={80}
+                width={70}
+                height={70}
                 priority
               />
             </a>
