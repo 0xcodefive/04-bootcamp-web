@@ -6,7 +6,8 @@ import styles from "@/styles/NFT.module.css";
 import Spinner from "@/pages/Spinner";
 
 const NftViewer = () => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isButtonLoading, setIsButtonLoading] = useState(false);
+    const [isNftLoading, setIsNftLoading] = useState(false);
     const [showMintBtn, setShowMintBtn] = useState(false);
     const [tokenBalance, setTokenBalance] = useState(false);
     const [nftMetadatas, setNFTMetadatas] = useState([]);
@@ -31,9 +32,9 @@ const NftViewer = () => {
     }, [account])
 
     useEffect(() => {
-        if (nftContract && tokenContract && !isLoading && nftImages.length === 0) {
-            setIsLoading(true);
-            getNFT().finally(() => setIsLoading(false));
+        if (nftContract && tokenContract && !isNftLoading && nftImages.length === 0) {
+            setIsNftLoading(true);
+            getNFT().finally(() => setIsNftLoading(false));
         }
     }, [nftContract, tokenContract]);
 
@@ -103,6 +104,7 @@ const NftViewer = () => {
 
     const mintNFT = async () => {
         try {
+            setIsButtonLoading(true);
             const tx = await nftContract.safeMint({
                 value: ethers.utils.parseEther("0.001"),
             });
@@ -111,12 +113,15 @@ const NftViewer = () => {
             await getNFT();
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsButtonLoading(false);
         }
     };
 
     function stakeNFT(index) {
         return async () => {
             try {
+                setIsButtonLoading(true);
                 const WAIT_BLOCK_CONFIRMATIONS = 2;
                 if (
                     (await nftContract.getApproved(index)).toLowerCase() !==
@@ -139,6 +144,8 @@ const NftViewer = () => {
                 await getNFT();
             } catch (error) {
                 console.error(error);
+            } finally {
+                setIsButtonLoading(false);
             }
         };
     }
@@ -146,11 +153,20 @@ const NftViewer = () => {
     function unstakeNFT(index) {
         return async () => {
             try {
+                setIsButtonLoading(true);
+
                 const WAIT_BLOCK_CONFIRMATIONS = 3;
-                await tokenContract.unstake(index).wait(WAIT_BLOCK_CONFIRMATIONS);
+                const tx = await tokenContract.unstake(index);
+                console.log(`unstake: ${tx.hash}`);
+                await signer.provider.waitForTransaction(
+                    tx.hash,
+                    WAIT_BLOCK_CONFIRMATIONS
+                );
                 await getNFT();
             } catch (error) {
                 console.error(error);
+            } finally {
+                setIsButtonLoading(false);
             }
         };
     }
@@ -168,8 +184,11 @@ const NftViewer = () => {
             {showMintBtn ? (
                 <div>
                     <button className={styles.mint_button} onClick={mintNFT}>
-                        Mint your first NFT by 0.001 BNB
+                        {isButtonLoading ? <Spinner width={"20px"} height={"20px"}/> :
+                            <p>Mint your first NFT by 0.001 BNB</p>
+                        }
                     </button>
+
                 </div>
             ) : (
                 <></>
@@ -179,7 +198,7 @@ const NftViewer = () => {
 
             <div className={styles.container}>
                 <h1 className={styles.h1}>Your collection</h1>
-                {isLoading ?
+                {isNftLoading ?
                     <Spinner/> :
                     <div className={styles.row}>
                         {nftImages.map((nftImage, i) =>
@@ -233,8 +252,16 @@ const NftViewer = () => {
                                                         <button
                                                             className={styles.mint_button}
                                                             onClick={stakeNFT(nftMetadatas[i].token_id)}
+                                                            disabled={isButtonLoading}
+                                                            style={{
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "center"
+                                                            }}
                                                         >
-                                                            Click it fast, yo!
+                                                            {isButtonLoading ? <Spinner width={"20px"} height={"20px"}/> :
+                                                                <p>Click it fast, yo!</p>
+                                                            }
                                                         </button>
                                                     </div>
                                                 ) : (
@@ -247,7 +274,9 @@ const NftViewer = () => {
                                                             className={styles.mint_button}
                                                             onClick={unstakeNFT(nftMetadatas[i].token_id)}
                                                         >
-                                                            Give me everything, pronto!
+                                                            {isButtonLoading ? <Spinner width={"20px"} height={"20px"}/> :
+                                                                <p>Give me everything, pronto!</p>
+                                                            }
                                                         </button>
                                                     </div>
                                                 )}
@@ -266,7 +295,7 @@ const NftViewer = () => {
                 <h1 className={styles.h1}>
                     All collection has {nftMetadatas.length} NFT's
                 </h1>
-                {isLoading ?
+                {isNftLoading ?
                     <Spinner/> :
                     <div className={styles.container2}>
                         <div className={styles.row2}>
