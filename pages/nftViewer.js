@@ -38,58 +38,54 @@ const NftViewer = () => {
 
     let metadatas = [];
     let images = [];
+
+    const dontShowMintBtn = await nftContract.addressMinted(addressSigner);
+    setShowMintBtn(!dontShowMintBtn);
+
     for (var i = 0; i < totalSupply; i++) {
-      const ownerOf = await nftContract.ownerOf(i);
-      if (
-        ownerOf.toLowerCase() !== addressSigner.toLowerCase() &&
-        ownerOf.toLowerCase() !== TOKEN_CONTRACT_ADDRESS.toLowerCase()
-      ) {
-        continue;
-      }
+      try {
+        // Получение метаданных NFT контракта
+        const tokenURI = (await nftContract.tokenURI(i)).replace(
+          "ipfs://",
+          "https://ipfs.io/ipfs/"
+        );
+        const response = await fetch(tokenURI);
+        const metadata = await response.json();
+        metadata.token_id = i;
+        let ownerOf = await nftContract.ownerOf(i);
 
-      let isStaked, lastStakeTime, reward;
-      if (ownerOf.toLowerCase() === TOKEN_CONTRACT_ADDRESS.toLowerCase()) {
-        let minter = await tokenContract._owners(i);
-        if (minter.toLowerCase() !== addressSigner.toLowerCase()) {
-          continue;
+        if (ownerOf.toLowerCase() === TOKEN_CONTRACT_ADDRESS.toLowerCase()) {
+          let minter = await tokenContract._owners(i);
+          metadata.isStaked = true;
+          ownerOf = minter;
+          const lastStakeTime = await tokenContract._lastStakeTime(i);
+          metadata.lastStakeTime = lastStakeTime;
+          const STAKING_REWARD = await tokenContract.STAKING_REWARD();
+          const ACCRUAL_PERIOD = await tokenContract.ACCRUAL_PERIOD();
+          const _reward = lastStakeTime.mul(STAKING_REWARD).div(ACCRUAL_PERIOD);
+          metadata.reward = ethers.utils.formatEther(_reward);
         }
-        isStaked = true;
-        lastStakeTime = await tokenContract._lastStakeTime(i);
-        const STAKING_REWARD = await tokenContract.STAKING_REWARD();
-        const ACCRUAL_PERIOD = await tokenContract.ACCRUAL_PERIOD();
-        const _reward = lastStakeTime.mul(STAKING_REWARD).div(ACCRUAL_PERIOD);
-        reward = ethers.utils.formatEther(_reward);
+
+        metadata.isOwned =
+          ownerOf.toLowerCase() === addressSigner.toLowerCase();
+        metadata.owner = ownerOf;
+        metadatas.push(metadata);
+
+        // Получение изображения NFT
+        const imageURI = metadata.image.replace(
+          "ipfs://",
+          "https://ipfs.io/ipfs/"
+        );
+        const imageData = await fetch(imageURI);
+        const blob = await imageData.blob();
+        const imageURL = URL.createObjectURL(blob);
+        images.push(imageURL);
+      } catch (error) {
+        console.error(error);
       }
-
-      // Получение метаданных NFT контракта
-      const tokenURI = (await nftContract.tokenURI(i)).replace(
-        "ipfs://",
-        "https://ipfs.io/ipfs/"
-      );
-      const response = await fetch(tokenURI);
-      const metadata = await response.json();
-      metadata.token_id = i;
-      metadata.owner = ownerOf;
-      metadata.isStaked = isStaked;
-      metadata.lastStakeTime = lastStakeTime;
-      metadata.reward = reward;
-
-      metadatas.push(metadata);
-
-      // Получение изображения NFT
-      const imageURI = metadata.image.replace(
-        "ipfs://",
-        "https://ipfs.io/ipfs/"
-      );
-      const imageData = await fetch(imageURI);
-      const blob = await imageData.blob();
-      const imageURL = URL.createObjectURL(blob);
-      images.push(imageURL);
     }
     setNFTMetadatas(metadatas);
     setNFTImages(images);
-
-    setShowMintBtn(!nftMetadatas.length);
   };
 
   const mintNFT = async () => {
@@ -153,33 +149,113 @@ const NftViewer = () => {
     );
   }
 
-  if (showMintBtn) {
-    return (
-      <div>
-        <button className={styles.mint_button} onClick={mintNFT}>
-          Mint your first NFT by 0.001 BNB
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.container}>
-      <div className={styles.row}>
-        {nftImages.map((nftImage, i) => (
-          <div key={i} className={styles.col}>
-            <div className={styles.card} key={i}>
-              {/* <div className={styles.side_left}>
-                <img className={styles.image} src={nftImage} alt="NFT Image" />
-              </div> */}
-              <div className={styles.side_left}>
+    <div className={styles.return}>
+      {showMintBtn ? (
+        <div>
+          <button className={styles.mint_button} onClick={mintNFT}>
+            Mint your first NFT by 0.001 BNB
+          </button>
+        </div>
+      ) : (
+        <></>
+      )}
+
+      <h1 className={styles.h1}>Your collection</h1>
+      <div className={styles.container}>
+        <div className={styles.row}>
+          {nftImages
+            .filter((nftImage, i) => nftMetadatas[i].isOwned)
+            .map((nftImage, i) => (
+              <div key={i} className={styles.col}>
+                <div className={styles.card} key={i}>
+                  <div className={styles.side_left}>
+                    <div
+                      className={`${styles.stamped_image} ${
+                        nftMetadatas[i].isStaked ? styles.staked : ""
+                      }`}
+                    >
+                      <img
+                        className={`${styles.image} ${
+                          nftMetadatas[i].isStaked ? styles.black_and_white : ""
+                        }`}
+                        src={nftImage}
+                        alt="NFT Image"
+                      />
+                      {nftMetadatas[i].isStaked ? (
+                        <span className={styles.stamp}>STAKED</span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className={styles.side_right}>
+                    <h2 className={styles.card_title}>
+                      {nftMetadatas[i].name}
+                    </h2>
+                    <p className={styles.card_text}>
+                      {nftMetadatas[i].description}
+                    </p>
+                    <p className={styles.card_text}>
+                      Token ID: {nftMetadatas[i].token_id}
+                    </p>
+                    <h2 className={styles.card_title}>Attributes</h2>
+                    {nftMetadatas[i].attributes.map((attr, j) => (
+                      <div className={styles.attribute} key={j}>
+                        <span className={styles.attribute_label}>
+                          {attr.trait_type}:
+                        </span>
+                        <span className={styles.attribute_value}>
+                          {attr.value}
+                        </span>
+                      </div>
+                    ))}
+                    {!nftMetadatas[i].isStaked ? (
+                      <div>
+                        <h2 className={styles.card_title}>
+                          Oh no, you ain't minting our token T0xC yet?
+                        </h2>
+                        <button
+                          className={styles.mint_button}
+                          onClick={stakeNFT(nftMetadatas[i].token_id)}
+                        >
+                          Click it fast, yo!
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <h2 className={styles.card_title}>
+                          Wow, you can get more than {nftMetadatas[i].reward}{" "}
+                          T0xC!
+                        </h2>
+                        <button
+                          className={styles.mint_button}
+                          onClick={unstakeNFT(nftMetadatas[i].token_id)}
+                        >
+                          Give me everything, pronto!
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      <h1 className={styles.h1}>
+        All collection has {nftMetadatas.length} NFT's
+      </h1>
+      <div className={styles.container2}>
+        <div className={styles.row2}>
+          {nftImages.map((nftImage, i) => (
+            <div key={i} className={styles.col2}>
+              <div className={styles.card2}>
                 <div
-                  className={`${styles.stamped_image} ${
+                  className={`${styles.image_container2} ${
                     nftMetadatas[i].isStaked ? styles.staked : ""
                   }`}
                 >
                   <img
-                    className={`${styles.image} ${
+                    className={`${styles.image2} ${
                       nftMetadatas[i].isStaked ? styles.black_and_white : ""
                     }`}
                     src={nftImage}
@@ -189,53 +265,13 @@ const NftViewer = () => {
                     <span className={styles.stamp}>STAKED</span>
                   ) : null}
                 </div>
-              </div>
-              <div className={styles.side_right}>
-                <h2 className={styles.card_title}>{nftMetadatas[i].name}</h2>
-                <p className={styles.card_text}>
-                  {nftMetadatas[i].description}
-                </p>
-                <p className={styles.card_text}>
-                  Token ID: {nftMetadatas[i].token_id}
-                </p>
-                <h2 className={styles.card_title}>Attributes</h2>
-                {nftMetadatas[i].attributes.map((attr, j) => (
-                  <div className={styles.attribute} key={j}>
-                    <span className={styles.attribute_label}>
-                      {attr.trait_type}:
-                    </span>
-                    <span className={styles.attribute_value}>{attr.value}</span>
-                  </div>
-                ))}
-                {!nftMetadatas[i].isStaked ? (
-                  <div>
-                    <h2 className={styles.card_title}>
-                      Oh no, you ain't minting our token T0xC yet?
-                    </h2>
-                    <button
-                      className={styles.mint_button}
-                      onClick={stakeNFT(nftMetadatas[i].token_id)}
-                    >
-                      Click it fast, yo!
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <h2 className={styles.card_title}>
-                      Wow, you can get more than {nftMetadatas[i].reward} T0xC!
-                    </h2>
-                    <button
-                      className={styles.mint_button}
-                      onClick={unstakeNFT(nftMetadatas[i].token_id)}
-                    >
-                      Give me everything, pronto!
-                    </button>
-                  </div>
-                )}
+                <div className={styles.owner2}>
+                  Owner: {nftMetadatas[i].owner}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
