@@ -1,0 +1,23 @@
+{
+  "name": "04-bootcamp-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@wagmi/core": "^0.10.8",
+    "@web3modal/ethereum": "^2.2.2",
+    "@web3modal/html": "^2.2.2",
+    "@web3modal/react": "^2.2.2",
+    "ethers": "^5.7.2",
+    "next": "13.2.4",
+    "react": "18.2.0",
+    "react-bootstrap": "^2.7.2",
+    "react-dom": "18.2.0",
+    "wagmi": "^0.12.9"
+  }
+}
